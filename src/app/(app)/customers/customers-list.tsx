@@ -63,7 +63,7 @@ export function CustomersList({ rows }: { rows: CustomerRow[] }) {
       </div>
 
       {filtered.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-slate-200 py-14 text-center text-sm text-slate-400">
+        <p className="rounded-2xl border border-dashed border-slate-200 py-14 text-center text-sm text-slate-500">
           ไม่พบลูกค้า
         </p>
       ) : (
@@ -78,7 +78,7 @@ export function CustomersList({ rows }: { rows: CustomerRow[] }) {
                   <p className="truncate text-sm font-semibold text-slate-800">
                     {c.name}
                   </p>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-[11px] text-slate-500">
                     {c.phone || "ไม่มีเบอร์"} ·{" "}
                     {c.openBills > 0 ? `ค้าง ${c.openBills} บิล` : "ไม่มีหนี้"}
                     {c.creditLimit > 0

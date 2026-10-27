@@ -2,7 +2,7 @@
  * เตรียมฐานข้อมูลสำหรับ dev (SQLite ในเครื่อง)
  *
  *   node scripts/db-local.mjs            → apply migrations ที่ยังไม่ถูกใช้
- *   node scripts/db-local.mjs --seed     → apply migrations + seed ข้อมูลตัวอย่าง
+ *   node scripts/db-local.mjs --seed     → apply migrations + seed (เฉพาะ DB ว่าง)
  *   node scripts/db-local.mjs --reset    → ลบไฟล์ DB แล้วเริ่มใหม่ + seed
  *
  * ใช้แทน `wrangler d1 ... --local` เพราะ workerd crash บนเครื่องนี้
@@ -61,9 +61,16 @@ console.log(
 );
 
 if (withSeed) {
-  const seed = readFileSync("seed.sql", "utf8");
-  db.exec(seed);
-  console.log("✓ seed ข้อมูลตัวอย่าง");
+  const userCount = db.prepare("SELECT count(*) AS n FROM users").get().n;
+  if (userCount > 0 && !args.has("--force-seed")) {
+    console.log(
+      "ข้ามการ seed เพราะฐานข้อมูลมีข้อมูลอยู่แล้ว (ใช้ --force-seed หรือ --reset ถ้าต้องการเริ่มใหม่)",
+    );
+  } else {
+    const seed = readFileSync("seed.sql", "utf8");
+    db.exec(seed);
+    console.log("✓ seed ข้อมูลตัวอย่าง");
+  }
 }
 
 db.close();

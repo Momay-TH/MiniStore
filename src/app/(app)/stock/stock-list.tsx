@@ -74,7 +74,7 @@ export function StockList({ rows }: { rows: StockRow[] }) {
       </div>
 
       {filtered.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-slate-200 py-14 text-center text-sm text-slate-400">
+        <p className="rounded-2xl border border-dashed border-slate-200 py-14 text-center text-sm text-slate-500">
           ไม่พบสินค้า
         </p>
       ) : (
@@ -93,7 +93,7 @@ export function StockList({ rows }: { rows: StockRow[] }) {
                     <p className="truncate text-sm font-semibold text-slate-800">
                       {p.name}
                     </p>
-                    <p className="text-[11px] text-slate-400">
+                    <p className="text-[11px] text-slate-500">
                       {p.sku}
                       {pack ? ` · ${pack}` : ""}
                       {p.reorderPoint > 0

@@ -1,12 +1,17 @@
 "use server";
 
-import { eq, ne } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
+import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { getDb } from "@/db";
-import { users } from "@/db/schema";
-import { hashPassword, requireOwner } from "@/lib/auth";
+import { sessions, users } from "@/db/schema";
+import {
+  SESSION_COOKIE,
+  hashPassword,
+  requireOwner,
+} from "@/lib/auth";
 import { newId } from "@/lib/ids";
 
 export type FormState = {
@@ -91,7 +96,7 @@ export async function resetPassword(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  await requireOwner();
+  const owner = await requireOwner();
   const id = String(formData.get("id") ?? "");
   const password = String(formData.get("password") ?? "");
   if (!id) return { error: "ไม่พบผู้ใช้" };
@@ -103,16 +108,17 @@ export async function resetPassword(
     .set({ passwordHash: await hashPassword(password) })
     .where(eq(users.id, id));
 
-  revalidatePath("/users");
-  return { ok: true, message: "รีเซ็ตรหัสผ่านแล้ว" };
-}
+  // ตัด session เดิมของผู้ใช้ทิ้ง เพื่อไม่ให้เครื่องที่หายยังใช้งานได้
+  const jar = await cookies();
+  const currentSession = jar.get(SESSION_COOKIE)?.value;
+  if (id === owner.id && currentSession) {
+    await db
+      .delete(sessions)
+      .where(and(eq(sessions.userId, id), ne(sessions.id, currentSession)));
+  } else {
+    await db.delete(sessions).where(eq(sessions.userId, id));
+  }
 
-export async function deleteUser(formData: FormData): Promise<void> {
-  const user = await requireOwner();
-  const id = String(formData.get("id") ?? "");
-  if (!id || id === user.id) return;
-
-  const db = getDb();
-  await db.delete(users).where(eq(users.id, id));
   revalidatePath("/users");
+  return { ok: true, message: "รีเซ็ตรหัสผ่านแล้ว (อุปกรณ์อื่นถูกออกจากระบบ)" };
 }

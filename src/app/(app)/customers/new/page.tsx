@@ -15,7 +15,7 @@ export default async function NewCustomerPage() {
           ← กลับรายการลูกค้า
         </Link>
         <h1 className="mt-2 text-lg font-bold text-slate-900">เพิ่มลูกค้า</h1>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-slate-500">
           สำหรับขายเชื่อ/ค้างชำระ · วงเงิน 0 = ไม่จำกัด
         </p>
       </div>

@@ -25,11 +25,14 @@ export function ProductForm({
   action,
   categories,
   defaults,
+  suggestedSku,
   submitLabel = "บันทึกสินค้า",
 }: {
   action: (state: FormState, formData: FormData) => Promise<FormState>;
   categories: { id: string; name: string }[];
   defaults?: ProductDefaults;
+  /** SKU ที่ระบบเตรียมไว้ให้ (หน้าเพิ่มสินค้า) */
+  suggestedSku?: string;
   submitLabel?: string;
 }) {
   const [state, formAction] = useActionState(action, {});
@@ -51,13 +54,15 @@ export function ProductForm({
         </Field>
 
         <div className="grid grid-cols-2 gap-3">
-          <Field label="SKU" hint="รหัสภายในร้าน ห้ามซ้ำ">
+          <Field
+            label="SKU"
+            hint="ระบบสร้างให้อัตโนมัติ — ลบออกเพื่อสร้างใหม่ตอนบันทึก"
+          >
             <input
               name="sku"
-              required
-              defaultValue={defaults?.sku}
+              defaultValue={defaults?.sku ?? suggestedSku}
               className="input font-mono"
-              placeholder="COKE325"
+              placeholder="ว่าง = สร้างอัตโนมัติ"
             />
           </Field>
           <Field label="บาร์โค้ด" hint="ไม่บังคับ">

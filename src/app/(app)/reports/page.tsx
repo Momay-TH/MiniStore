@@ -202,7 +202,7 @@ export default async function ReportsPage(props: PageProps<"/reports">) {
       <div className="flex items-start justify-between gap-2">
         <div>
           <h1 className="text-lg font-bold text-slate-900">รายงาน</h1>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-500">
             ช่วง {range.label} · {billCount} บิล ·{" "}
             {formatDate(fromMs)} – {formatDate(today + 86_400_000 - 1)}
           </p>
@@ -267,7 +267,7 @@ export default async function ReportsPage(props: PageProps<"/reports">) {
             ยอดขายรายวัน
           </h3>
           {daily.length === 0 ? (
-            <p className="py-6 text-center text-xs text-slate-400">
+            <p className="py-6 text-center text-xs text-slate-500">
               ยังไม่มีการขายในช่วงนี้
             </p>
           ) : (
@@ -288,7 +288,7 @@ export default async function ReportsPage(props: PageProps<"/reports">) {
                   <span className="w-24 shrink-0 text-right text-xs font-semibold text-slate-700">
                     ฿{formatTHBCompact(d.total)}
                   </span>
-                  <span className="w-10 shrink-0 text-right text-[10px] text-slate-400">
+                  <span className="w-10 shrink-0 text-right text-[10px] text-slate-500">
                     {d.bills}บิล
                   </span>
                 </li>
@@ -302,7 +302,7 @@ export default async function ReportsPage(props: PageProps<"/reports">) {
             สินค้าขายดี (ตามมูลค่า)
           </h3>
           {topProducts.length === 0 ? (
-            <p className="py-6 text-center text-xs text-slate-400">
+            <p className="py-6 text-center text-xs text-slate-500">
               ยังไม่มีข้อมูล
             </p>
           ) : (
@@ -314,12 +314,12 @@ export default async function ReportsPage(props: PageProps<"/reports">) {
                 >
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-slate-700">
-                      <span className="mr-1.5 text-[11px] text-slate-400">
+                      <span className="mr-1.5 text-[11px] text-slate-500">
                         {i + 1}.
                       </span>
                       {p.name}
                     </p>
-                    <p className="text-[11px] text-slate-400">
+                    <p className="text-[11px] text-slate-500">
                       {p.qty} หน่วยฐาน
                     </p>
                   </div>
@@ -371,7 +371,7 @@ export default async function ReportsPage(props: PageProps<"/reports">) {
             สินค้ามูลค่าสต็อกสูงสุด
           </h3>
           {topStock.length === 0 ? (
-            <p className="py-6 text-center text-xs text-slate-400">
+            <p className="py-6 text-center text-xs text-slate-500">
               ยังไม่มีข้อมูล
             </p>
           ) : (
@@ -383,7 +383,7 @@ export default async function ReportsPage(props: PageProps<"/reports">) {
                 >
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-slate-700">{p.name}</p>
-                    <p className="text-[11px] text-slate-400">
+                    <p className="text-[11px] text-slate-500">
                       {p.stockQty} {p.baseUnit} · ฿
                       {formatTHBCompact(p.costPerBase)}/{p.baseUnit}
                     </p>
@@ -430,7 +430,7 @@ export default async function ReportsPage(props: PageProps<"/reports">) {
                 <p className="mt-0.5 text-base font-bold text-slate-800">
                   ฿{formatTHBCompact(bucketTotals.get(b.key) ?? 0)}
                 </p>
-                <p className="text-[10px] text-slate-400">
+                <p className="text-[10px] text-slate-500">
                   {debts.filter((r) => agingBucket(daysBetween(r.createdAt)) === b.key).length} บิล
                 </p>
               </div>
@@ -443,7 +443,7 @@ export default async function ReportsPage(props: PageProps<"/reports">) {
             ลูกหนี้สูงสุด
           </h3>
           {topDebtors.length === 0 ? (
-            <p className="py-6 text-center text-xs text-slate-400">
+            <p className="py-6 text-center text-xs text-slate-500">
               ไม่มียอดค้าง — ดีมาก!
             </p>
           ) : (
@@ -456,7 +456,7 @@ export default async function ReportsPage(props: PageProps<"/reports">) {
                   >
                     <div className="min-w-0">
                       <p className="truncate text-slate-700">{c.name}</p>
-                      <p className="text-[11px] text-slate-400">
+                      <p className="text-[11px] text-slate-500">
                         {c.bills} บิล · เก่าสุด {c.oldest} วัน
                       </p>
                     </div>

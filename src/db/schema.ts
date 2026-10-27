@@ -47,6 +47,14 @@ export const sessions = sqliteTable(
   (t) => [index("sessions_user_idx").on(t.userId)],
 );
 
+/** นับจำนวนครั้งที่ล็อกอินผิด ต่อ (ชื่อผู้ใช้ + IP) เพื่อกันเดารหัส */
+export const loginAttempts = sqliteTable("login_attempts", {
+  key: text("key").primaryKey(),
+  count: integer("count").notNull().default(0),
+  firstAt: integer("first_at").notNull(),
+  lastAt: integer("last_at").notNull(),
+});
+
 export const categories = sqliteTable(
   "categories",
   {
@@ -128,6 +136,9 @@ export const sales = sqliteTable(
     discount: integer("discount").notNull().default(0),
     total: integer("total").notNull().default(0),
     paidAmount: integer("paid_amount").notNull().default(0),
+    /** เงินสด/เงินโอนที่รับจริงตอนขาย (ใช้คำนวณเงินทอนและกระทบยอด) */
+    cashReceived: integer("cash_received").notNull().default(0),
+    changeAmount: integer("change_amount").notNull().default(0),
     method: text("method", { enum: ["CASH", "TRANSFER", "CREDIT"] })
       .notNull()
       .default("CASH"),

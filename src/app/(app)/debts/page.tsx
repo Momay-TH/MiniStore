@@ -81,7 +81,7 @@ export default async function DebtsPage() {
           ← กลับรายการลูกค้า
         </Link>
         <h1 className="mt-2 text-lg font-bold text-slate-900">หนี้ค้างชำระ</h1>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-slate-500">
           {rows.length} บิล · {customerRows.length} ลูกค้า · อายุหนี้แบ่งตามวัน
         </p>
       </div>
@@ -98,7 +98,7 @@ export default async function DebtsPage() {
             <p className="mt-0.5 text-base font-bold text-slate-800">
               ฿{formatTHB(totals.get(b.key) ?? 0)}
             </p>
-            <p className="text-[10px] text-slate-400">
+            <p className="text-[10px] text-slate-500">
               {rows.filter((r) => r.bucket === b.key).length} บิล
             </p>
           </div>
@@ -119,7 +119,7 @@ export default async function DebtsPage() {
                 >
                   <div className="min-w-0">
                     <p className="truncate text-sm text-slate-700">{c.name}</p>
-                    <p className="text-[11px] text-slate-400">
+                    <p className="text-[11px] text-slate-500">
                       {c.bills} บิล · เก่าสุด {c.oldest} วัน
                     </p>
                   </div>

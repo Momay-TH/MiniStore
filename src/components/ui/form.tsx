@@ -52,7 +52,7 @@ export function Field({
     <label className={`flex flex-col gap-1.5 ${className}`}>
       <span className="label">{label}</span>
       {children}
-      {hint ? <span className="text-[11px] text-slate-400">{hint}</span> : null}
+      {hint ? <span className="text-[11px] text-slate-500">{hint}</span> : null}
     </label>
   );
 }

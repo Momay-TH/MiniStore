@@ -55,6 +55,9 @@ export function startOfTodayBkk(now: number = Date.now()): number {
   return shifted.getTime() - offsetMs;
 }
 
+/** นับจำนวนวันตามปฏิทิน (เวลาไทย) — ไม่ใช่ช่วง 24 ชม. */
 export function daysBetween(fromMs: number, toMs: number = Date.now()): number {
-  return Math.floor((toMs - fromMs) / 86_400_000);
+  return Math.floor(
+    (startOfTodayBkk(toMs) - startOfTodayBkk(fromMs)) / 86_400_000,
+  );
 }

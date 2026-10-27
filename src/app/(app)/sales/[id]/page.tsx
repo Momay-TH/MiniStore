@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
-import { customers, saleItems, sales, users } from "@/db/schema";
+import { customers, products, saleItems, sales, users } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
 import { formatTHB } from "@/lib/money";
 import { formatDateTime } from "@/lib/datetime";
@@ -30,6 +30,8 @@ export default async function SaleDetailPage(props: PageProps<"/sales/[id]">) {
         discount: sales.discount,
         total: sales.total,
         paidAmount: sales.paidAmount,
+        cashReceived: sales.cashReceived,
+        changeAmount: sales.changeAmount,
         method: sales.method,
         status: sales.status,
         note: sales.note,
@@ -47,8 +49,21 @@ export default async function SaleDetailPage(props: PageProps<"/sales/[id]">) {
   if (!sale) notFound();
 
   const items = await db
-    .select()
+    .select({
+      id: saleItems.id,
+      productName: saleItems.productName,
+      saleUnit: saleItems.saleUnit,
+      qty: saleItems.qty,
+      qtyBase: saleItems.qtyBase,
+      listPrice: saleItems.listPrice,
+      unitPrice: saleItems.unitPrice,
+      lineTotal: saleItems.lineTotal,
+      baseUnit: products.baseUnit,
+      packUnit: products.packUnit,
+      packSize: products.packSize,
+    })
     .from(saleItems)
+    .leftJoin(products, eq(products.id, saleItems.productId))
     .where(eq(saleItems.saleId, sale.id));
 
   const due = sale.total - sale.paidAmount;
@@ -66,7 +81,7 @@ export default async function SaleDetailPage(props: PageProps<"/sales/[id]">) {
         <div className="flex items-start justify-between">
           <div>
             <p className="font-mono text-sm text-slate-500">{sale.code}</p>
-            <p className="mt-1 text-xs text-slate-400">
+            <p className="mt-1 text-xs text-slate-500">
               {formatDateTime(sale.createdAt)}
             </p>
           </div>
@@ -82,7 +97,7 @@ export default async function SaleDetailPage(props: PageProps<"/sales/[id]">) {
               {sale.customerName ?? "ลูกค้าทั่วไป"}
             </span>
           </p>
-          <p className="mt-0.5 text-xs text-slate-400">
+          <p className="mt-0.5 text-xs text-slate-500">
             ผู้ขาย: {sale.cashierName || "-"}
           </p>
         </div>
@@ -100,15 +115,18 @@ export default async function SaleDetailPage(props: PageProps<"/sales/[id]">) {
           <tbody className="divide-y divide-slate-100">
             {items.map((item) => {
               const overridden = item.unitPrice !== item.listPrice;
+              const unitLabel =
+                item.saleUnit === "PACK"
+                  ? (item.packUnit ?? "ลัง")
+                  : (item.baseUnit ?? "หน่วย");
               return (
                 <tr key={item.id}>
                   <td className="px-3 py-2">
                     <p className="font-medium text-slate-800">
                       {item.productName}
                     </p>
-                    <p className="text-[11px] text-slate-400">
-                      ฿{formatTHB(item.unitPrice)} × {item.qty}{" "}
-                      {item.saleUnit === "PACK" ? "ลัง" : "หน่วย"}
+                    <p className="text-[11px] text-slate-500">
+                      ฿{formatTHB(item.unitPrice)} × {item.qty} {unitLabel}
                       {overridden ? (
                         <span className="ml-1 text-amber-600">
                           (ปกติ ฿{formatTHB(item.listPrice)})
@@ -117,7 +135,7 @@ export default async function SaleDetailPage(props: PageProps<"/sales/[id]">) {
                     </p>
                   </td>
                   <td className="px-2 py-2 text-right text-slate-600">
-                    {item.qtyBase}
+                    {item.qtyBase} {item.baseUnit ?? ""}
                   </td>
                   <td className="px-3 py-2 text-right font-medium">
                     ฿{formatTHB(item.lineTotal)}
@@ -135,6 +153,16 @@ export default async function SaleDetailPage(props: PageProps<"/sales/[id]">) {
           <Row label="ส่วนลด" value={`−฿${formatTHB(sale.discount)}`} />
         ) : null}
         <Row label="ยอดสุทธิ" value={`฿${formatTHB(sale.total)}`} bold />
+        {sale.method === "CASH" && sale.cashReceived > 0 ? (
+          <>
+            <Row label="รับเงินสด" value={`฿${formatTHB(sale.cashReceived)}`} />
+            <Row
+              label="เงินทอน"
+              value={`฿${formatTHB(sale.changeAmount)}`}
+              className="text-emerald-700"
+            />
+          </>
+        ) : null}
         <Row label="ชำระแล้ว" value={`฿${formatTHB(sale.paidAmount)}`} />
         {due > 0 ? (
           <Row

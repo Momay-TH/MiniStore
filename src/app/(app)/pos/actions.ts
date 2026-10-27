@@ -6,6 +6,7 @@ import { z } from "zod";
 import { getDb } from "@/db";
 import {
   customers,
+  payments,
   products,
   saleItems,
   sales,
@@ -30,6 +31,7 @@ const payloadSchema = z.object({
   method: z.enum(["CASH", "TRANSFER", "CREDIT"]),
   customerId: z.string().optional().nullable(),
   paidAmount: z.number().int().min(0).default(0),
+  cashReceived: z.number().int().min(0).default(0),
   note: z.string().max(300).optional(),
 });
 
@@ -142,6 +144,26 @@ export async function createSale(
   const paidAmount = isPaidInFull
     ? total
     : Math.min(payload.paidAmount, total);
+
+  // เงินสด/โอน: ต้องรับเงินครบก่อนบันทึก (กันเงินขาดจากการรับไม่ครบ)
+  let cashReceived = 0;
+  let change = 0;
+  if (isPaidInFull) {
+    cashReceived = payload.cashReceived;
+    if (cashReceived < total) {
+      return {
+        ok: false,
+        error: `รับเงินไม่พอ: ต้องรับ ฿${formatTHB(total)} (ขาด ฿${formatTHB(
+          total - cashReceived,
+        )})`,
+      };
+    }
+    change = cashReceived - total;
+  } else {
+    // ขายเชื่อ: เงินดาวน์ถือเป็นเงินสดรับตอนขาย
+    cashReceived = paidAmount;
+  }
+
   const status = paidAmount >= total ? "PAID" : paidAmount > 0 ? "PARTIAL" : "UNPAID";
 
   // ตรวจวงเงินเชื่อของลูกค้า (0 = ไม่จำกัด)
@@ -211,11 +233,28 @@ export async function createSale(
       discount,
       total,
       paidAmount,
+      cashReceived,
+      changeAmount: change,
       method: payload.method,
       status,
       note: payload.note?.trim() || null,
       createdAt: now,
     }),
+    // เงินดาวน์ของการขายเชื่อ ต้องมีประวัติรับชำระด้วย (ไม่ใช่แค่ paid_amount)
+    ...(payload.method === "CREDIT" && paidAmount > 0 && payload.customerId
+      ? [
+          db.insert(payments).values({
+            id: newId("pay"),
+            customerId: payload.customerId,
+            saleId,
+            amount: paidAmount,
+            method: "CASH" as const,
+            note: "เงินดาวน์ตอนขาย",
+            userId: user.id,
+            createdAt: now,
+          }),
+        ]
+      : []),
     ...lines.map((line) =>
       db.insert(saleItems).values({
         id: newId("sitem"),
@@ -267,7 +306,7 @@ export async function createSale(
     saleId,
     code,
     total,
-    change: Math.max(0, paidAmount - total),
+    change,
     creditDue: Math.max(0, total - paidAmount),
   };
 }

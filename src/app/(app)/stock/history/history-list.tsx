@@ -51,14 +51,14 @@ export function HistoryList({ rows }: { rows: MoveRow[] }) {
     });
   }, [rows, type, query]);
 
-  const types = ["all", "PURCHASE", "SALE", "ADJUST", "DAMAGE", "INIT"];
+  const types = ["all", "PURCHASE", "SALE", "ADJUST", "DAMAGE", "RETURN", "INIT"];
 
   return (
     <div className="space-y-3">
       <input
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="ค้นหาสินค้า / หมายเหตุ"
+        placeholder="ค้นหาสินค้า / หมายเหตุ (ในหน้านี้)"
         className="input"
       />
 
@@ -80,7 +80,7 @@ export function HistoryList({ rows }: { rows: MoveRow[] }) {
       </div>
 
       {filtered.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-slate-200 py-14 text-center text-sm text-slate-400">
+        <p className="rounded-2xl border border-dashed border-slate-200 py-14 text-center text-sm text-slate-500">
           ไม่พบรายการ
         </p>
       ) : (
@@ -92,7 +92,7 @@ export function HistoryList({ rows }: { rows: MoveRow[] }) {
                   <p className="truncate text-sm font-semibold text-slate-800">
                     {m.productName}
                   </p>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-[11px] text-slate-500">
                     {formatDateTime(m.createdAt)} · {m.userName ?? "-"}
                     {m.note ? ` · ${m.note}` : ""}
                   </p>

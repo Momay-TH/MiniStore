@@ -39,7 +39,7 @@ export default async function StockPage() {
     <div className="space-y-4">
       <div>
         <h1 className="text-lg font-bold text-slate-900">สต็อก</h1>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-slate-500">
           {rows.length} รายการ · ใกล้หมด {lowCount} · หมด {outCount} · มูลค่า{" "}
           ฿{formatTHBCompact(stockValue)}
         </p>

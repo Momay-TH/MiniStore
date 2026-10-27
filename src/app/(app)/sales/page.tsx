@@ -5,8 +5,11 @@ import { customers, saleItems, sales } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
 import { formatTHB } from "@/lib/money";
 import { formatDateTime, startOfTodayBkk } from "@/lib/datetime";
+import { Pagination, parsePage } from "@/components/ui/pagination";
 
 export const metadata = { title: "ประวัติการขาย" };
+
+const PAGE_SIZE = 30;
 
 const METHOD_LABEL: Record<string, string> = {
   CASH: "เงินสด",
@@ -26,9 +29,10 @@ const STATUS_LABEL: Record<string, string> = {
   UNPAID: "ค้างชำระ",
 };
 
-export default async function SalesPage() {
+export default async function SalesPage(props: PageProps<"/sales">) {
   await requireUser();
   const db = getDb();
+  const searchParams = await props.searchParams;
 
   const today = startOfTodayBkk();
 
@@ -42,6 +46,13 @@ export default async function SalesPage() {
       .from(sales)
       .where(gte(sales.createdAt, today))
   )[0];
+
+  const totalRow = (
+    await db.select({ n: sql<number>`count(*)` }).from(sales)
+  )[0];
+  const totalCount = Number(totalRow?.n ?? 0);
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+  const page = parsePage(searchParams.page, totalPages);
 
   const rows = await db
     .select({
@@ -60,7 +71,8 @@ export default async function SalesPage() {
     .leftJoin(saleItems, eq(saleItems.saleId, sales.id))
     .groupBy(sales.id)
     .orderBy(desc(sales.createdAt))
-    .limit(60);
+    .limit(PAGE_SIZE)
+    .offset((page - 1) * PAGE_SIZE);
 
   return (
     <div className="space-y-4">
@@ -79,10 +91,16 @@ export default async function SalesPage() {
 
       <h2 className="px-1 text-sm font-semibold text-slate-500">
         รายการล่าสุด
+        {totalCount > 0 ? (
+          <span className="font-normal text-slate-500">
+            {" "}
+            · ทั้งหมด {totalCount} บิล
+          </span>
+        ) : null}
       </h2>
 
       {rows.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-slate-200 py-14 text-center text-sm text-slate-400">
+        <p className="rounded-2xl border border-dashed border-slate-200 py-14 text-center text-sm text-slate-500">
           ยังไม่มีการขาย — เริ่มที่เมนู “ขาย”
         </p>
       ) : (
@@ -111,7 +129,7 @@ export default async function SalesPage() {
                     {METHOD_LABEL[row.method] ?? row.method} ·{" "}
                     {Number(row.itemCount)} รายการ
                   </p>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-[11px] text-slate-500">
                     {formatDateTime(row.createdAt)}
                   </p>
                 </div>
@@ -123,6 +141,12 @@ export default async function SalesPage() {
           ))}
         </ul>
       )}
+
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        hrefFor={(p) => (p === 1 ? "/sales" : `/sales?page=${p}`)}
+      />
     </div>
   );
 }

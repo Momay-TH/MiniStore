@@ -57,7 +57,7 @@ export default async function EditProductPage(
           ← กลับรายการสินค้า
         </Link>
         <h1 className="mt-2 text-lg font-bold text-slate-900">{product.name}</h1>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-slate-500">
           คงเหลือ {product.stockQty} {product.baseUnit} · {product.sku}
         </p>
       </div>
@@ -94,7 +94,7 @@ export default async function EditProductPage(
             <p className="text-sm font-medium text-slate-700">
               {product.isActive === 1 ? "สินค้าเปิดใช้งาน" : "สินค้าถูกปิดใช้งาน"}
             </p>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-slate-500">
               ปิดใช้งาน = ไม่แสดงในหน้าขาย แต่ประวัติยังอยู่ครบ
             </p>
           </div>
@@ -116,7 +116,7 @@ export default async function EditProductPage(
           ประวัติการแก้ราคา
         </h2>
         {logs.length === 0 ? (
-          <p className="py-3 text-center text-xs text-slate-400">
+          <p className="py-3 text-center text-xs text-slate-500">
             ยังไม่มีการแก้ราคา
           </p>
         ) : (
@@ -126,12 +126,12 @@ export default async function EditProductPage(
                 <div>
                   <p className="text-sm text-slate-700">
                     {FIELD_LABEL[log.field] ?? log.field}:{" "}
-                    <span className="text-slate-400 line-through">
+                    <span className="text-slate-500 line-through">
                       ฿{formatTHB(log.oldValue)}
                     </span>{" "}
                     → <span className="font-semibold">฿{formatTHB(log.newValue)}</span>
                   </p>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-[11px] text-slate-500">
                     {log.userName ?? "ไม่ทราบผู้ใช้"} ·{" "}
                     {formatDateTime(log.createdAt)}
                   </p>

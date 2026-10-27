@@ -4,7 +4,6 @@ import { getDb } from "@/db";
 import { products } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
 import { AdjustForm } from "./adjust-form";
-import type { StockProduct } from "../receive/receive-form";
 
 export const metadata = { title: "ปรับปรุงสต็อก" };
 
@@ -33,12 +32,12 @@ export default async function AdjustPage() {
           ← กลับหน้าสต็อก
         </Link>
         <h1 className="mt-2 text-lg font-bold text-slate-900">ปรับปรุงสต็อก</h1>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-slate-500">
           กรอกจำนวนที่นับได้จริง ระบบจะคำนวณผลต่างให้
         </p>
       </div>
 
-      <AdjustForm products={rows as StockProduct[]} />
+      <AdjustForm products={rows} />
     </div>
   );
 }

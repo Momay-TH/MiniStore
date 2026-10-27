@@ -51,7 +51,7 @@
   }
 
   .input {
-    @apply h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-base text-slate-900 outline-none placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100;
+    @apply h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-base text-slate-900 outline-none placeholder:text-slate-500 focus:border-brand-500 focus:ring-4 focus:ring-brand-100;
   }
 
   .label {

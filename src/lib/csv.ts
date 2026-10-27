@@ -1,8 +1,17 @@
+/**
+ * กัน CSV formula injection: ถ้าข้อความขึ้นต้นด้วยอักขระที่ Excel/Sheets
+ * ตีความเป็นสูตร (= + - @ tab CR) ให้เติม ' ข้างหน้า
+ * ตัวเลขจริงไม่ถูกแตะ เพื่อให้ยอดติดลบยังคำนวณได้
+ */
+function neutralizeFormula(v: string): string {
+  return /^[=+\-@\t\r]/.test(v) ? `'${v}` : v;
+}
+
 /** สร้าง CSV (RFC 4180) รองรับภาษาไทย + เปิดใน Excel ได้ */
 export function toCsv(headers: string[], rows: (string | number | null | undefined)[][]): string {
   const escape = (v: unknown): string => {
     if (v === null || v === undefined) return "";
-    const s = String(v);
+    const s = typeof v === "number" ? String(v) : neutralizeFormula(String(v));
     if (/[",\n\r]/.test(s)) {
       return `"${s.replace(/"/g, '""')}"`;
     }

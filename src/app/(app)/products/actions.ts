@@ -9,6 +9,7 @@ import { categories, priceLogs, products } from "@/db/schema";
 import { requireOwner, requireUser } from "@/lib/auth";
 import { newId } from "@/lib/ids";
 import { bahtToSatang } from "@/lib/money";
+import { generateNextSku, isAutoSku } from "@/lib/sku";
 
 export type FormState = {
   ok?: boolean;
@@ -18,7 +19,7 @@ export type FormState = {
 
 const productSchema = z.object({
   name: z.string().trim().min(1, "กรอกชื่อสินค้า").max(120),
-  sku: z.string().trim().min(1, "กรอก SKU").max(60),
+  sku: z.string().trim().max(60, "SKU ยาวเกิน 60 ตัว"),
   barcode: z.string().trim().max(60),
   categoryId: z.string().trim(),
   baseUnit: z.string().trim().min(1, "กรอกหน่วยฐาน").max(20),
@@ -84,10 +85,24 @@ export async function createProduct(
   const d = parsed.data;
   const db = getDb();
 
-  const dup = (
-    await db.select({ id: products.id }).from(products).where(eq(products.sku, d.sku)).limit(1)
-  )[0];
-  if (dup) return { error: `SKU "${d.sku}" ถูกใช้แล้ว` };
+  // SKU: เว้นว่าง = ให้ระบบสร้าง (P00001) / ถ้ารหัสอัตโนมัติชน ให้เลื่อนเลขถัดไป
+  let sku = d.sku;
+  if (!sku) sku = await generateNextSku();
+
+  for (let attempt = 0; ; attempt++) {
+    const dup = (
+      await db
+        .select({ id: products.id })
+        .from(products)
+        .where(eq(products.sku, sku))
+        .limit(1)
+    )[0];
+    if (!dup) break;
+    if (!isAutoSku(sku)) return { error: `SKU "${sku}" ถูกใช้แล้ว` };
+    if (attempt >= 5)
+      return { error: "สร้าง SKU อัตโนมัติไม่สำเร็จ กรุณาลองใหม่อีกครั้ง" };
+    sku = await generateNextSku();
+  }
 
   if (d.barcode) {
     const dupBarcode = (
@@ -103,7 +118,7 @@ export async function createProduct(
   const now = Date.now();
   await db.insert(products).values({
     id: newId("prod"),
-    sku: d.sku,
+    sku,
     barcode: d.barcode || null,
     name: d.name,
     categoryId: d.categoryId || null,
@@ -145,14 +160,17 @@ export async function updateProduct(
   )[0];
   if (!current) return { error: "ไม่พบสินค้า" };
 
+  // เว้นว่าง = คง SKU เดิม (ไม่สร้างใหม่ให้สินค้าที่มีอยู่แล้ว)
+  const sku = d.sku || current.sku;
+
   const dup = (
     await db
       .select({ id: products.id })
       .from(products)
-      .where(and(eq(products.sku, d.sku), ne(products.id, id)))
+      .where(and(eq(products.sku, sku), ne(products.id, id)))
       .limit(1)
   )[0];
-  if (dup) return { error: `SKU "${d.sku}" ถูกใช้แล้ว` };
+  if (dup) return { error: `SKU "${sku}" ถูกใช้แล้ว` };
 
   if (d.barcode) {
     const dupBarcode = (
@@ -170,7 +188,7 @@ export async function updateProduct(
     .update(products)
     .set({
       name: d.name,
-      sku: d.sku,
+      sku,
       barcode: d.barcode || null,
       categoryId: d.categoryId || null,
       baseUnit: d.baseUnit,
@@ -276,9 +294,22 @@ export async function updateCategory(formData: FormData): Promise<void> {
   const id = String(formData.get("id") ?? "");
   const name = String(formData.get("name") ?? "").trim();
   const sortOrder = Number(formData.get("sortOrder") ?? 0) || 0;
-  if (!id || !name) return;
+  if (!id || !name || name.length > 60) {
+    redirect("/products/categories?error=invalid");
+  }
 
   const db = getDb();
+  const dup = (
+    await db
+      .select({ id: categories.id })
+      .from(categories)
+      .where(and(eq(categories.name, name), ne(categories.id, id)))
+      .limit(1)
+  )[0];
+  if (dup) {
+    redirect("/products/categories?error=duplicate");
+  }
+
   await db
     .update(categories)
     .set({ name, sortOrder })

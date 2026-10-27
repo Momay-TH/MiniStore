@@ -50,7 +50,7 @@ export default async function CustomersPage(props: PageProps<"/customers">) {
       <div className="flex items-start justify-between gap-2">
         <div>
           <h1 className="text-lg font-bold text-slate-900">ลูกค้า</h1>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-500">
             {list.length} ราย · ค้างชำระ {debtors} ราย
           </p>
         </div>

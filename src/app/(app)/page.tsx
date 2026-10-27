@@ -57,7 +57,7 @@ export default async function DashboardPage() {
         <h1 className="text-lg font-bold text-slate-900">
           สวัสดี {user.displayName || user.username}
         </h1>
-        <p className="text-xs text-slate-400">ภาพรวมร้านวันนี้</p>
+        <p className="text-xs text-slate-500">ภาพรวมร้านวันนี้</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -99,7 +99,7 @@ export default async function DashboardPage() {
         </div>
 
         {lowStock.length === 0 ? (
-          <p className="py-4 text-center text-xs text-slate-400">
+          <p className="py-4 text-center text-xs text-slate-500">
             ยังไม่มีสินค้าใกล้หมด
           </p>
         ) : (
@@ -126,11 +126,11 @@ export default async function DashboardPage() {
           <span className="block text-base font-semibold text-slate-800">
             ดูรายงาน
           </span>
-          <span className="block text-xs text-slate-400">
+          <span className="block text-xs text-slate-500">
             ยอดขาย · สินค้าขายดี · สต็อก · หนี้ค้าง
           </span>
         </span>
-        <span className="text-2xl text-slate-400">→</span>
+        <span className="text-2xl text-slate-500">→</span>
       </Link>
 
       {user.role === "OWNER" ? (
@@ -142,7 +142,7 @@ export default async function DashboardPage() {
             <span className="text-sm font-semibold text-slate-800">
               จัดการผู้ใช้
             </span>
-            <span className="text-slate-400">→</span>
+            <span className="text-slate-500">→</span>
           </Link>
           <Link
             href="/products/categories"
@@ -151,7 +151,7 @@ export default async function DashboardPage() {
             <span className="text-sm font-semibold text-slate-800">
               หมวดหมู่
             </span>
-            <span className="text-slate-400">→</span>
+            <span className="text-slate-500">→</span>
           </Link>
         </div>
       ) : null}

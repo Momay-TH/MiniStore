@@ -106,7 +106,7 @@ export default async function CustomerDetailPage(
             <h1 className="truncate text-lg font-bold text-slate-900">
               {customer.name}
             </h1>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500">
               {customer.phone || "ไม่มีเบอร์"} · เพิ่มเมื่อ{" "}
               {formatDate(customer.createdAt)}
             </p>
@@ -172,7 +172,7 @@ export default async function CustomerDetailPage(
                   >
                     <div className="min-w-0">
                       <p className="font-mono text-xs text-slate-500">{s.code}</p>
-                      <p className="text-[11px] text-slate-400">
+                      <p className="text-[11px] text-slate-500">
                         {formatDateTime(s.createdAt)} · {days} วัน ·{" "}
                         {STATUS_LABEL[s.status] ?? s.status}
                       </p>
@@ -207,7 +207,7 @@ export default async function CustomerDetailPage(
                 >
                   <div className="min-w-0">
                     <p className="font-mono text-xs text-slate-500">{s.code}</p>
-                    <p className="text-[11px] text-slate-400">
+                    <p className="text-[11px] text-slate-500">
                       {formatDateTime(s.createdAt)}
                     </p>
                   </div>
@@ -235,7 +235,7 @@ export default async function CustomerDetailPage(
           ประวัติรับชำระ
         </h2>
         {paymentRows.length === 0 ? (
-          <p className="py-3 text-center text-xs text-slate-400">
+          <p className="py-3 text-center text-xs text-slate-500">
             ยังไม่มีการรับชำระ
           </p>
         ) : (
@@ -246,12 +246,12 @@ export default async function CustomerDetailPage(
                   <p className="text-sm text-slate-700">
                     {p.method === "TRANSFER" ? "โอน" : "เงินสด"}
                     {p.saleCode ? (
-                      <span className="ml-2 font-mono text-[11px] text-slate-400">
+                      <span className="ml-2 font-mono text-[11px] text-slate-500">
                         {p.saleCode}
                       </span>
                     ) : null}
                   </p>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-[11px] text-slate-500">
                     {formatDateTime(p.createdAt)}
                     {p.note ? ` · ${p.note}` : ""}
                   </p>
@@ -299,7 +299,7 @@ export default async function CustomerDetailPage(
                 ? "ลูกค้าเปิดใช้งาน"
                 : "ลูกค้าถูกปิดใช้งาน"}
             </p>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-slate-500">
               ปิดใช้งาน = ไม่แสดงตอนขายเชื่อ แต่ประวัติ/หนี้ยังอยู่ครบ
             </p>
           </div>

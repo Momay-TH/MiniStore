@@ -83,7 +83,7 @@ export function DebtsList({ rows }: { rows: DebtRow[] }) {
       </p>
 
       {filtered.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-slate-200 py-14 text-center text-sm text-slate-400">
+        <p className="rounded-2xl border border-dashed border-slate-200 py-14 text-center text-sm text-slate-500">
           ไม่มีบิลค้างในกลุ่มนี้
         </p>
       ) : (
@@ -103,10 +103,10 @@ export function DebtsList({ rows }: { rows: DebtRow[] }) {
                     <p className="truncate text-sm font-semibold text-slate-800">
                       {r.customerName ?? "ไม่ระบุลูกค้า"}
                     </p>
-                    <p className="font-mono text-[11px] text-slate-400">
+                    <p className="font-mono text-[11px] text-slate-500">
                       {r.code}
                     </p>
-                    <p className="text-[11px] text-slate-400">
+                    <p className="text-[11px] text-slate-500">
                       {formatDateTime(r.createdAt)} · {r.days} วัน
                     </p>
                   </div>

@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
-import { Html5Qrcode } from "html5-qrcode";
+import { BarcodeScanner, ScanButton } from "@/components/barcode-scanner";
 import { createSale, type CreateSaleResult } from "./actions";
 import { formatTHB } from "@/lib/money";
 
@@ -76,8 +76,6 @@ export function PosClient({
 
   // สแกนบาร์โค้ดด้วยกล้องมือถือ
   const [scannerOpen, setScannerOpen] = useState(false);
-  const scannerRef = useRef<Html5Qrcode | null>(null);
-  const scannedRef = useRef(false);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -101,6 +99,7 @@ export function PosClient({
 
   const cashPaid = toSatang(cashInput);
   const change = Math.max(0, cashPaid - total);
+  const cashShort = method === "CASH" ? Math.max(0, total - cashPaid) : 0;
   const creditPaid = Math.min(toSatang(creditPaidInput), total);
   const creditDue = Math.max(0, total - creditPaid);
 
@@ -223,6 +222,7 @@ export function PosClient({
         method,
         customerId: method === "CREDIT" ? customerId || null : null,
         paidAmount: method === "CREDIT" ? creditPaid : total,
+        cashReceived: method === "CREDIT" ? 0 : method === "CASH" ? cashPaid : total,
         note: note.trim() || undefined,
       });
 
@@ -239,72 +239,21 @@ export function PosClient({
 
   function openScanner() {
     setError(null);
-    scannedRef.current = false;
     setScannerOpen(true);
   }
 
-  function stopScanner() {
-    const scanner = scannerRef.current;
-    scannerRef.current = null;
-    if (scanner && scanner.isScanning) {
-      scanner.stop().catch(() => undefined);
+  function handleScanned(code: string) {
+    const product = products.find(
+      (p) => (p.barcode ?? "").trim() === code.trim(),
+    );
+    setScannerOpen(false);
+    if (product) {
+      addToCart(product, unit);
+      setError(null);
+    } else {
+      setError(`ไม่พบสินค้าจากบาร์โค้ด ${code}`);
     }
   }
-
-  function closeScanner() {
-    setScannerOpen(false);
-    stopScanner();
-  }
-
-  useEffect(() => {
-    if (!scannerOpen) return;
-    const scanner = new Html5Qrcode("pos-scanner");
-    scannerRef.current = scanner;
-
-    scanner
-      .start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 240, height: 240 }, aspectRatio: 1.0 },
-        (decodedText) => {
-          const code = decodedText.trim();
-          if (!code || scannedRef.current) return;
-          scannedRef.current = true;
-          const scannerNow = scannerRef.current;
-          scannerRef.current = null;
-          const stop = scannerNow
-            ? scannerNow.stop().catch(() => undefined)
-            : Promise.resolve();
-          void stop.then(() => {
-            const product = products.find((p) => p.barcode === code);
-            if (product) {
-              addToCart(product, unit);
-              setScannerOpen(false);
-            } else {
-              setError(`ไม่พบสินค้าจากบาร์โค้ด ${code}`);
-              scannedRef.current = false;
-            }
-          });
-        },
-        () => {
-          /* ยังอ่านไม่เจอ → ลองต่อ */
-        },
-      )
-      .catch((err) => {
-        scannerRef.current = null;
-        setError(
-          "ไม่สามารถเปิดกล้องสแกนบาร์โค้ดได้ (ตรวจสิทธิ์กล้องหรืออุปกรณ์ไม่รองรับ)" +
-            (err && err.message ? `: ${err.message}` : ""),
-        );
-      });
-
-    return () => {
-      scannerRef.current = null;
-      if (scanner.isScanning) {
-        scanner.stop().catch(() => undefined);
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scannerOpen]);
 
   /* ------------------------------- product grid ------------------------------ */
 
@@ -314,7 +263,7 @@ export function PosClient({
         <div className="flex items-center gap-2">
           <div className="relative flex-1">
             <svg
-              className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-slate-400"
+              className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-slate-500"
               width="18"
               height="18"
               viewBox="0 0 24 24"
@@ -345,16 +294,10 @@ export function PosClient({
             />
           </div>
 
-          <button
-            type="button"
-            onClick={scannerOpen ? closeScanner : openScanner}
-            aria-label="สแกนบาร์โค้ดด้วยกล้อง"
-            className="h-11 w-12 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 active:bg-slate-50"
-          >
-            <span className="text-lg leading-none" aria-hidden>
-              📷
-            </span>
-          </button>
+          <ScanButton
+            active={scannerOpen}
+            onClick={scannerOpen ? () => setScannerOpen(false) : openScanner}
+          />
 
           <div className="flex rounded-xl border border-slate-200 bg-white p-0.5">
             {(
@@ -379,20 +322,20 @@ export function PosClient({
           </div>
         </div>
 
-        {scannerOpen ? (
-          <div className="overflow-hidden rounded-2xl border border-slate-900 bg-slate-900">
-            <div id="pos-scanner" className="h-56 w-full" />
-            <div className="flex items-center justify-between bg-slate-900 px-3 py-2">
-              <p className="text-xs text-white/70">กำลังสแกน… อ่านบาร์โค้ดจากกล้อง</p>
-              <button
-                type="button"
-                onClick={closeScanner}
-                className="rounded-lg bg-white/10 px-3 py-1.5 text-xs font-medium text-white"
-              >
-                ปิดกล้อง
-              </button>
-            </div>
-          </div>
+        <BarcodeScanner
+          open={scannerOpen}
+          onClose={() => setScannerOpen(false)}
+          onDetected={handleScanned}
+        />
+
+        {error ? (
+          <button
+            type="button"
+            onClick={() => setError(null)}
+            className="block w-full rounded-xl bg-red-50 px-3 py-2 text-left text-xs font-medium text-red-700"
+          >
+            {error} (แตะเพื่อปิด)
+          </button>
         ) : null}
 
         <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1">
@@ -413,7 +356,7 @@ export function PosClient({
       </div>
 
       {filtered.length === 0 ? (
-        <p className="py-16 text-center text-sm text-slate-400">
+        <p className="py-16 text-center text-sm text-slate-500">
           ไม่พบสินค้า
         </p>
       ) : (
@@ -434,7 +377,7 @@ export function PosClient({
                       {p.name}
                     </span>
                   </div>
-                  <p className="mt-1 text-[11px] text-slate-400">
+                  <p className="mt-1 text-[11px] text-slate-500">
                     {p.categoryName ?? "ไม่ระบุหมวด"} ·{" "}
                     {unit === "PACK"
                       ? `1 ${p.packUnit} = ${p.packSize} ${p.baseUnit}`
@@ -483,7 +426,7 @@ export function PosClient({
 
       <Sheet open={cartOpen} onClose={() => setCartOpen(false)} title="ตะกร้า">
         {cart.length === 0 ? (
-          <p className="py-10 text-center text-sm text-slate-400">
+          <p className="py-10 text-center text-sm text-slate-500">
             ยังไม่มีสินค้าในตะกร้า
           </p>
         ) : (
@@ -502,7 +445,7 @@ export function PosClient({
                     onClick={() =>
                       setCart((prev) => prev.filter((x) => x.key !== l.key))
                     }
-                    className="text-xs text-slate-400"
+                    className="text-xs text-slate-500"
                   >
                     ลบ
                   </button>
@@ -537,7 +480,7 @@ export function PosClient({
                     </button>
                   </div>
 
-                  <label className="ml-auto flex items-center gap-1 text-xs text-slate-400">
+                  <label className="ml-auto flex items-center gap-1 text-xs text-slate-500">
                     ราคา
                     <input
                       type="number"
@@ -669,9 +612,15 @@ export function PosClient({
                   </button>
                 ))}
               </div>
-              <div className="flex justify-between rounded-xl bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700">
-                <span>เงินทอน</span>
-                <span>฿{formatTHB(change)}</span>
+              <div
+                className={`flex justify-between rounded-xl px-3 py-2 text-sm font-semibold ${
+                  cashShort > 0
+                    ? "bg-red-50 text-red-700"
+                    : "bg-emerald-50 text-emerald-700"
+                }`}
+              >
+                <span>{cashShort > 0 ? "รับเงินไม่พอ (ขาด)" : "เงินทอน"}</span>
+                <span>฿{formatTHB(cashShort > 0 ? cashShort : change)}</span>
               </div>
             </div>
           ) : null}
@@ -767,10 +716,14 @@ export function PosClient({
           <button
             type="button"
             onClick={confirmSale}
-            disabled={pending || cart.length === 0}
+            disabled={pending || cart.length === 0 || cashShort > 0}
             className="w-full rounded-xl bg-brand-600 py-3.5 text-base font-semibold text-white shadow-sm disabled:opacity-60"
           >
-            {pending ? "กำลังบันทึก…" : `ยืนยันรับชำระ ฿${formatTHB(total)}`}
+            {pending
+              ? "กำลังบันทึก…"
+              : cashShort > 0
+                ? `รับเงินไม่พอ ขาด ฿${formatTHB(cashShort)}`
+                : `ยืนยันรับชำระ ฿${formatTHB(total)}`}
           </button>
         </div>
       </Sheet>
@@ -897,7 +850,7 @@ function Sheet({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg px-2 py-1 text-sm text-slate-400"
+            className="rounded-lg px-2 py-1 text-sm text-slate-500"
           >
             ปิด
           </button>

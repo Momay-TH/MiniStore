@@ -40,7 +40,7 @@ export default async function UsersPage(props: PageProps<"/users">) {
       <div className="flex items-start justify-between gap-2">
         <div>
           <h1 className="text-lg font-bold text-slate-900">จัดการผู้ใช้</h1>
-          <p className="text-xs text-slate-400">{rows.length} บัญชี</p>
+          <p className="text-xs text-slate-500">{rows.length} บัญชี</p>
         </div>
         <Link href="/users/new" className="btn-primary h-9 px-3 text-xs">
           + เพิ่มผู้ใช้
@@ -60,7 +60,7 @@ export default async function UsersPage(props: PageProps<"/users">) {
                     </span>
                   ) : null}
                 </p>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-slate-500">
                   {u.username} ·{" "}
                   {u.role === "OWNER" ? "เจ้าของ" : "พนักงาน"}
                 </p>

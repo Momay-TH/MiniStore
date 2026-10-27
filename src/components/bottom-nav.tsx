@@ -104,7 +104,7 @@ export function BottomNav() {
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={`flex h-14 flex-col items-center justify-center gap-0.5 text-[10px] font-medium transition ${
-                  active ? "text-brand-600" : "text-slate-400 active:text-slate-600"
+                  active ? "text-brand-600" : "text-slate-500 active:text-slate-600"
                 }`}
               >
                 <span className={active ? "scale-105" : ""}>{item.icon}</span>

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { BarcodeScanner, ScanButton } from "@/components/barcode-scanner";
 import { formatTHB } from "@/lib/money";
 
 export type ProductRow = {
@@ -31,6 +32,28 @@ export function ProductsList({
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState("all");
   const [showInactive, setShowInactive] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [scanNotice, setScanNotice] = useState<{
+    ok: boolean;
+    text: string;
+  } | null>(null);
+
+  function handleScanned(raw: string) {
+    const code = raw.trim();
+    setScannerOpen(false);
+    const found = rows.find((r) => (r.barcode ?? "").trim() === code);
+    if (!found) {
+      setScanNotice({ ok: false, text: `ไม่พบสินค้าจากบาร์โค้ด ${code}` });
+      return;
+    }
+    setShowInactive(true);
+    setCat("all");
+    setQuery(found.barcode ?? found.sku);
+    setScanNotice({
+      ok: true,
+      text: `พบ ${found.name} · เหลือ ${found.stockQty} ${found.baseUnit}`,
+    });
+  }
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -50,12 +73,39 @@ export function ProductsList({
 
   return (
     <div className="space-y-3">
-      <input
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="ค้นหาชื่อ / SKU / บาร์โค้ด"
-        className="input"
+      <div className="flex items-center gap-2">
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="ค้นหาชื่อ / SKU / บาร์โค้ด"
+          className="input flex-1"
+        />
+        <ScanButton
+          active={scannerOpen}
+          onClick={() => setScannerOpen((v) => !v)}
+        />
+      </div>
+
+      <BarcodeScanner
+        open={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+        onDetected={handleScanned}
       />
+
+      {scanNotice ? (
+        <button
+          type="button"
+          onClick={() => setScanNotice(null)}
+          className={`block w-full rounded-xl px-3 py-2 text-left text-xs font-medium ${
+            scanNotice.ok
+              ? "bg-emerald-50 text-emerald-700"
+              : "bg-red-50 text-red-700"
+          }`}
+        >
+          {scanNotice.text} (แตะเพื่อปิด)
+        </button>
+      ) : null}
+
 
       <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1">
         <Chip active={cat === "all"} onClick={() => setCat("all")} label="ทั้งหมด" />
@@ -82,7 +132,7 @@ export function ProductsList({
       ) : null}
 
       {filtered.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-slate-200 py-14 text-center text-sm text-slate-400">
+        <p className="rounded-2xl border border-dashed border-slate-200 py-14 text-center text-sm text-slate-500">
           ไม่พบสินค้า
         </p>
       ) : (
@@ -105,7 +155,7 @@ export function ProductsList({
                         </span>
                       ) : null}
                     </div>
-                    <p className="text-[11px] text-slate-400">
+                    <p className="text-[11px] text-slate-500">
                       {p.categoryName ?? "ไม่ระบุหมวด"} · {p.sku}
                       {p.barcode ? ` · ${p.barcode}` : ""}
                     </p>
@@ -133,7 +183,7 @@ export function ProductsList({
                     <span className="font-semibold text-slate-800">
                       ฿{formatTHB(p.pricePerPack)}
                     </span>
-                    <span className="text-slate-400"> ({p.packSize} {p.baseUnit})</span>
+                    <span className="text-slate-500"> ({p.packSize} {p.baseUnit})</span>
                   </span>
                 </div>
               </Link>

@@ -30,7 +30,7 @@ export function PaymentForm({
 
       <div className="flex items-center justify-between">
         <p className="text-sm font-semibold text-slate-700">รับชำระหนี้</p>
-        <span className="text-xs text-slate-400">
+        <span className="text-xs text-slate-500">
           ค้าง ฿{formatTHB(due)}
         </span>
       </div>

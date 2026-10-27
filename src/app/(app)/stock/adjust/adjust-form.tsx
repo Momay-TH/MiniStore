@@ -6,7 +6,13 @@ import { adjustStock } from "../actions";
 import type { FormState } from "../../products/actions";
 import type { StockProduct } from "../receive/receive-form";
 
-export function AdjustForm({ products }: { products: StockProduct[] }) {
+/** ฟิลด์ที่หน้า ปรับยอด ใช้จริง (ไม่ต้องส่งข้อมูลสแกน/ที่มา) */
+type AdjustProduct = Pick<
+  StockProduct,
+  "id" | "name" | "baseUnit" | "packSize" | "stockQty"
+>;
+
+export function AdjustForm({ products }: { products: AdjustProduct[] }) {
   const [state, formAction] = useActionState<FormState, FormData>(
     adjustStock,
     {},

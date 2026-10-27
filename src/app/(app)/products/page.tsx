@@ -43,7 +43,7 @@ export default async function ProductsPage() {
       <div className="flex items-start justify-between gap-2">
         <div>
           <h1 className="text-lg font-bold text-slate-900">สินค้า</h1>
-          <p className="text-xs text-slate-400">{rows.length} รายการ</p>
+          <p className="text-xs text-slate-500">{rows.length} รายการ</p>
         </div>
         <div className="flex gap-2">
           <Link href="/products/categories" className="btn-ghost btn-sm">

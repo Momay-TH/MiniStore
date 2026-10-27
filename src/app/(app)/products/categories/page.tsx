@@ -8,8 +8,17 @@ import { CategoryAddForm } from "./category-add-form";
 
 export const metadata = { title: "หมวดหมู่สินค้า" };
 
-export default async function CategoriesPage() {
+export default async function CategoriesPage(
+  props: PageProps<"/products/categories">,
+) {
   await requireOwner();
+  const searchParams = await props.searchParams;
+  const error =
+    searchParams.error === "duplicate"
+      ? "มีชื่อหมวดหมู่นี้อยู่แล้ว — กรุณาใช้ชื่ออื่น"
+      : searchParams.error === "invalid"
+        ? "กรุณากรอกชื่อหมวดหมู่ (ไม่เกิน 60 ตัวอักษร)"
+        : null;
   const db = getDb();
 
   const rows = await db
@@ -32,12 +41,18 @@ export default async function CategoriesPage() {
           ← กลับรายการสินค้า
         </Link>
         <h1 className="mt-2 text-lg font-bold text-slate-900">หมวดหมู่</h1>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-slate-500">
           {rows.length} หมวด · เรียงตาม “ลำดับ” น้อยไปมาก
         </p>
       </div>
 
       <CategoryAddForm />
+
+      {error ? (
+        <p className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+          {error}
+        </p>
+      ) : null}
 
       <ul className="space-y-2">
         {rows.map((c) => (
@@ -63,7 +78,7 @@ export default async function CategoriesPage() {
             </form>
 
             <div className="mt-2 flex items-center justify-between">
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-slate-500">
                 {Number(c.productCount)} สินค้า
               </p>
               <form action={toggleCategoryActive}>

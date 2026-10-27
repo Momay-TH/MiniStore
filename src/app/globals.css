@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Noto Sans Thai", "Sarabun", "IBM Plex Sans Thai", ui-sans-serif,
+    system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", monospace;
+
+  --color-brand-50: #eefbf4;
+  --color-brand-100: #d6f5e3;
+  --color-brand-200: #b0e9cb;
+  --color-brand-300: #7bd7ac;
+  --color-brand-400: #45bd8b;
+  --color-brand-500: #21a270;
+  --color-brand-600: #14825a;
+  --color-brand-700: #10684a;
+  --color-brand-800: #10533d;
+  --color-brand-900: #0e4433;
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased;
+    overscroll-behavior-y: none;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  /* ซ่อน scrollbar ของแถบเลื่อนแนวนอน (chips) */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-slate-200 bg-white;
+  }
+
+  .input {
+    @apply h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-base text-slate-900 outline-none placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100;
+  }
+
+  .label {
+    @apply text-sm font-medium text-slate-700;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-primary {
+    @apply inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 text-sm font-semibold text-white shadow-sm transition active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-ghost {
+    @apply inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition active:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-sm {
+    @apply inline-flex h-9 items-center justify-center gap-1.5 rounded-xl px-3 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .badge {
+    @apply inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-semibold;
+  }
+}
+
+@utility pb-safe {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.5rem);
+}
+
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}

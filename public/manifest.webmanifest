@@ -1,0 +1,20 @@
+{
+  "name": "ร้านค้า · สต็อกและขาย",
+  "short_name": "ร้านค้า",
+  "description": "ระบบจัดการสต็อก ขายสินค้า และลูกค้าค้างชำระ",
+  "lang": "th",
+  "start_url": "/pos",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f8fafc",
+  "theme_color": "#14825a",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

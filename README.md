@@ -131,12 +131,15 @@ wrangler.jsonc            config Worker + D1 binding
 
 ## Deploy ขึ้น Cloudflare
 
+- **Production URL:** [https://stock-app.momay-t.workers.dev](https://stock-app.momay-t.workers.dev)
+
 ```powershell
 npx wrangler login
-npx wrangler d1 create stock-db          # เอา database_id ไปใส่ wrangler.jsonc
 npm run db:migrate:remote
 npm run db:seed:remote                   # ถ้าต้องการข้อมูลตัวอย่าง
-npm run deploy
+# บน Windows (หลีกเลี่ยง miniflare crash):
+npx opennextjs-cloudflare build
+cmd /c "set OPEN_NEXT_DEPLOY=true && npx wrangler deploy"
 ```
 
 > ก่อน deploy จริง: เปลี่ยน `database_id` ใน `wrangler.jsonc` จากค่า placeholder

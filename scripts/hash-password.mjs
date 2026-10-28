@@ -1,9 +1,9 @@
 /**
  * สร้าง password hash สำหรับ seed / สร้างผู้ใช้ใหม่
  * ใช้งาน: node scripts/hash-password.mjs "รหัสผ่าน"
- * รูปแบบผลลัพธ์: pbkdf2$sha256$210000$<saltB64>$<hashB64>
+ * รูปแบบผลลัพธ์: pbkdf2$sha256$100000$<saltB64>$<hashB64>
  */
-const ITERATIONS = 210_000;
+const ITERATIONS = 100_000;
 
 const password = process.argv[2];
 if (!password) {

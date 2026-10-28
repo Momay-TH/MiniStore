@@ -6,7 +6,7 @@ INSERT OR REPLACE INTO users (id, username, password_hash, display_name, role, i
 VALUES (
   'usr_owner',
   'admin',
-  'pbkdf2$sha256$210000$MHjBuG4fZVd3QhFwnUrZkw==$gs9VmvqqvBEGZWTRJ0AK+i8vCaYikRBjOBkI1oHa5Nc=',
+  'pbkdf2$sha256$100000$MHjBuG4fZVd3QhFwnUrZkw==$k8qZ48K+ZcxIQSJ1MJORTlom6dCme4HewM8EIxEM1OY=',
   'เจ้าของร้าน',
   'OWNER',
   1,

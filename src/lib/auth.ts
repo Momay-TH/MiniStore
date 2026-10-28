@@ -7,7 +7,8 @@ import { randomToken } from "./ids";
 
 export const SESSION_COOKIE = "sid";
 const SESSION_DAYS = 30;
-const PBKDF2_ITERATIONS = 210_000;
+/** Cloudflare Workers WebCrypto จำกัด PBKDF2 iterations ไม่เกิน 100,000 */
+const PBKDF2_ITERATIONS = 100_000;
 
 export type Role = "OWNER" | "STAFF";
 

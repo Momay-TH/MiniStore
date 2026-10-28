@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, ne, sql } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -21,7 +21,12 @@ export type FormState = {
 };
 
 const userSchema = z.object({
-  username: z.string().trim().min(3, "ชื่อผู้ใช้ ≥ 3 ตัว").max(40),
+  username: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .min(3, "ชื่อผู้ใช้ ≥ 3 ตัว")
+    .max(40),
   displayName: z.string().trim().min(1, "กรอกชื่อที่แสดง").max(80),
   password: z.string().min(6, "รหัสผ่าน ≥ 6 ตัว").max(100),
   role: z.enum(["OWNER", "STAFF"]),
@@ -49,7 +54,7 @@ export async function createUser(
     await db
       .select({ id: users.id })
       .from(users)
-      .where(eq(users.username, d.username))
+      .where(sql`lower(${users.username}) = ${d.username}`)
       .limit(1)
   )[0];
   if (dup) return { error: `มีผู้ใช้ "${d.username}" อยู่แล้ว` };

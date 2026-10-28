@@ -1,6 +1,6 @@
 "use server";
 
-import { eq, lt } from "drizzle-orm";
+import { eq, lt, sql } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { sessions, users } from "@/db/schema";
@@ -40,7 +40,11 @@ export async function loginAction(
 
   const db = getDb();
   const row = (
-    await db.select().from(users).where(eq(users.username, username)).limit(1)
+    await db
+      .select()
+      .from(users)
+      .where(sql`lower(${users.username}) = ${username}`)
+      .limit(1)
   )[0];
 
   const ok = row ? await verifyPassword(password, row.passwordHash) : false;
